@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Versance Reporting</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #fafaf7;
+  --panel: #ffffff;
+  --ink: #1a1a1a;
+  --ink-mute: #5a5a5a;
+  --ink-faint: #8a8a8a;
+  --line: #e8e6df;
+  --accent: #b8543d;
+  --good: #2d7a4d;
+  --bad: #b8543d;
+  --warn: #b88a3d;
+  --info: #3d6db8;
+  --tier-replied: #b8543d;
+  --tier-clicked: #b88a3d;
+  --tier-opened: #2d7a4d;
+  --shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.45;
+  padding: 24px 16px;
+}
+.container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 4px; flex-wrap: wrap; gap: 8px; }
+.title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.subtitle { font-size: 12px; color: var(--ink-faint); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
+.panel-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
+.panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); }
+.panel-source { font-size: 11px; color: var(--ink-faint); font-style: italic; text-align: right; }
+.hero { background: var(--ink); color: #f4f1ea; padding: 20px 18px; border-radius: 8px; }
+.hero .lead { font-size: 13px; opacity: 0.7; margin-bottom: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+.hero-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.hero-stat { display: flex; flex-direction: column; gap: 2px; }
+.hero-stat .v { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.hero-stat .v .pct { font-size: 14px; font-weight: 500; opacity: 0.65; margin-left: 6px; letter-spacing: 0; }
+.hero-stat .l { font-size: 11px; opacity: 0.65; }
+.hero .takeaway { margin-top: 14px; font-size: 13px; opacity: 0.85; line-height: 1.4; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
+.kpi { display: flex; flex-direction: column; gap: 2px; }
+.kpi .v { font-size: 22px; font-weight: 600; line-height: 1.1; }
+.kpi .l { font-size: 11px; color: var(--ink-mute); }
+
+.tier-section { margin-top: 8px; border-radius: 6px; overflow: hidden; }
+.tier-section:first-of-type { margin-top: 0; }
+.tier-section[open] { background: #fafaf6; }
+.tier-section > summary {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; cursor: pointer; user-select: none;
+  list-style: none; outline: none; border-radius: 6px;
+  transition: background 0.1s;
+}
+.tier-section > summary:hover { background: #f4f2ec; }
+.tier-section > summary::-webkit-details-marker { display: none; }
+.tier-chevron {
+  display: inline-block; width: 10px; height: 10px;
+  border-right: 1.5px solid var(--ink-mute);
+  border-bottom: 1.5px solid var(--ink-mute);
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+  margin-left: -2px; flex-shrink: 0;
+}
+.tier-section[open] > summary .tier-chevron { transform: rotate(45deg); margin-top: -3px; }
+.tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.tier-dot.replied { background: var(--tier-replied); }
+.tier-dot.clicked { background: var(--tier-clicked); }
+.tier-dot.opened { background: var(--tier-opened); }
+.tier-name { font-size: 12px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink); flex: 1; }
+.tier-count { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.tier-empty { font-size: 12px; color: var(--ink-faint); padding: 4px 12px 10px 30px; font-style: italic; }
+.contact-list { display: flex; flex-direction: column; padding: 4px 6px 8px; }
+.contact { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 12px; padding: 8px 12px; border-radius: 4px; text-decoration: none; color: inherit; transition: background 0.1s; }
+.contact:hover { background: rgba(0,0,0,0.04); }
+.contact-main { min-width: 0; overflow: hidden; }
+.contact-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-co { font-size: 12px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-when { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+.wf-card { padding: 14px 0; border-top: 1px solid var(--line); }
+.wf-card:first-child { border-top: none; padding-top: 0; }
+.wf-card:last-child { padding-bottom: 0; }
+.wf-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.wf-stats { display: flex; gap: 10px; font-size: 12px; color: var(--ink-mute); margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
+.wf-stats span { font-variant-numeric: tabular-nums; }
+.wf-stats .pill { background: #f0ede5; padding: 2px 7px; border-radius: 3px; color: var(--ink); }
+.wf-stats .pill-good { background: #e1efe5; color: var(--good); }
+.wf-stats .pill-warn { background: #fdf2dc; color: #8a6510; }
+.wf-stats .pill-bad { background: #f3e0db; color: var(--bad); }
+.wf-stats .median { color: var(--ink-faint); margin-left: auto; }
+
+.day-rows { display: flex; flex-direction: column; gap: 4px; }
+.day-row { display: grid; grid-template-columns: 56px 1fr 110px; gap: 10px; align-items: center; font-size: 12px; }
+.day-row .day-label { color: var(--ink-mute); font-variant-numeric: tabular-nums; }
+.day-row .day-track { display: flex; background: #f4f2ec; height: 16px; border-radius: 3px; overflow: hidden; }
+.day-row .day-good { background: var(--good); height: 100%; }
+.day-row .day-bad { background: var(--bad); height: 100%; }
+.day-row .day-counts { color: var(--ink-mute); font-variant-numeric: tabular-nums; text-align: right; font-size: 11px; }
+.day-row.empty .day-track { background: #f8f6f0; }
+.day-row.empty .day-counts { color: var(--ink-faint); font-style: italic; }
+
+.alert { background: #fdf6e8; border: 1px solid #ebd9a8; border-radius: 6px; padding: 10px 12px; font-size: 12px; color: #8a6510; margin-bottom: 12px; }
+.alert.info { background: #ecf2f8; border-color: #c7d6e8; color: #2c5282; }
+
+.muted { color: var(--ink-faint); font-size: 12px; }
+.note { font-size: 11px; color: var(--ink-faint); margin-top: 14px; padding-top: 12px; border-top: 1px dotted var(--line); line-height: 1.5; }
+
+footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 12px 0 4px; }
+
+.error-list { margin-top: 8px; font-size: 12px; color: var(--ink-mute); list-style: none; }
+.error-list li { padding: 4px 0; border-top: 1px dotted var(--line); display: flex; justify-content: space-between; gap: 12px; }
+.error-list li:first-child { border-top: none; }
+.error-list .when { color: var(--ink-faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.subkpis { display: flex; gap: 18px; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--line); flex-wrap: wrap; }
+.subkpi { display: flex; flex-direction: column; gap: 1px; }
+.subkpi .v { font-size: 16px; font-weight: 600; }
+.subkpi .l { font-size: 11px; color: var(--ink-mute); }
+</style>
+</head>
+<body>
+
+<script id="versance-data" type="application/json">
+{
+  "contacts": [{"id":1,"properties":{"email":"a@example.com","firstname":"Alice","lastname":"Smith","company":"TestCo","hs_latest_sequence_enrolled_date":"2026-04-22T10:00:00Z","hs_latest_sequence_ended_date":null,"hs_sequences_is_enrolled":"true","hs_sales_email_last_opened":"2026-04-23T15:00:00Z","hs_sales_email_last_clicked":"2026-04-23T15:01:00Z","hs_sales_email_last_replied":null,"num_associated_deals":"0","hubspot_owner_id":""}},{"id":2,"properties":{"email":"b@example.com","firstname":"Bob","lastname":"Jones","company":"TestCo2","hs_latest_sequence_enrolled_date":"2026-04-21T10:00:00Z","hs_latest_sequence_ended_date":null,"hs_sequences_is_enrolled":"true","hs_sales_email_last_opened":"2026-04-22T15:00:00Z","hs_sales_email_last_clicked":null,"hs_sales_email_last_replied":null,"num_associated_deals":"0","hubspot_owner_id":""}}],
+  "n8nStats": {"generated_at":"2026-04-23T23:00:00Z","cutoff":"2026-04-20T00:00:00Z","workflows":[{"workflow":"WF-A: Test","slug":"wf_a","total_runs":5,"success_count":5,"error_count":0,"success_rate_pct":100,"median_success_duration_ms":1234,"runs_by_day":[{"date":"2026-04-23","success":5,"error":0}],"last_error":null}]},
+  "generatedAt": "2026-04-23T23:26:51.064Z",
+  "cutoffIso": "2026-04-20T00:00:00Z",
+  "portalId": "45239542",
+  "sequenceId": "303463253"
+}
+</script>
+
+<div class="container">
+
+<header>
+  <div>
+    <div class="title">Versance Reporting</div>
+    <div class="subtitle">CEO outreach pipeline · daily snapshot</div>
+  </div>
+  <div class="subtitle" id="generated"></div>
+</header>
+
+<section class="panel hero" id="hero">
+  <div class="lead">Real Engagement Since Apr 20</div>
+  <div class="hero-grid" id="hero-grid"></div>
+  <div class="takeaway" id="hero-takeaway"></div>
+</section>
+
+<section class="panel" id="outcomes-panel">
+  <div class="panel-header">
+    <div class="panel-title">Engaged Contacts</div>
+    <div class="panel-source" id="outcomes-source">HubSpot · sequence 303463253 · since Apr 20</div>
+  </div>
+  <div id="outcomes-body"></div>
+</section>
+
+<section class="panel" id="throughput-panel">
+  <div class="panel-header">
+    <div class="panel-title">Workflow Throughput</div>
+    <div class="panel-source" id="throughput-source">n8n · WF-D · since Apr 20, 2026</div>
+  </div>
+  <div id="throughput-body"></div>
+</section>
+
+<section class="panel" id="reliability-panel">
+  <div class="panel-header">
+    <div class="panel-title">System Reliability</div>
+    <div class="panel-source" id="reliability-source">n8n · WF-D · since Apr 20, 2026</div>
+  </div>
+  <div id="reliability-body"></div>
+</section>
+
+<footer id="footer">Snapshot regenerated daily · Versance × NXT Analytic</footer>
+
+</div>
+
+<script>
+const DATA = JSON.parse(document.getElementById('versance-data').textContent);
+const CUTOFF_ISO = DATA.cutoffIso;
+const CUTOFF_MS = new Date(CUTOFF_ISO).getTime();
+const PORTAL_ID = DATA.portalId;
+const SEQUENCE_ID = DATA.sequenceId;
+
+function fmtNum(n) { return n == null ? '—' : Number(n).toLocaleString(); }
+function fmtPct(n) { return n == null ? '—' : Number(n).toFixed(0) + '%'; }
+function fmtMs(n) { if (!n) return '—'; if (n < 1000) return n + 'ms'; return (n/1000).toFixed(1) + 's'; }
+function relTime(iso) {
+  if (!iso) return '—';
+  const t = new Date(iso).getTime();
+  const now = Date.now();
+  const d = Math.floor((now - t) / 1000);
+  if (d < 60) return d + 's ago';
+  if (d < 3600) return Math.floor(d/60) + 'm ago';
+  if (d < 86400) return Math.floor(d/3600) + 'h ago';
+  return Math.floor(d/86400) + 'd ago';
+}
+function fmtDay(isoDate) {
+  if (!isoDate) return '';
+  return new Date(isoDate + 'T00:00:00Z').toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' });
+}
+function fmtShortDate(iso) {
+  if (!iso) return '';
+  return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+function fmtCutoff(iso) {
+  if (!iso) return null;
+  try { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+  catch { return null; }
+}
+function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
+function hubspotUrl(id) { return `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-1/${id}`; }
+
+function aggregateOutcomes(contacts) {
+  const total = contacts.length;
+  let active = 0, ended = 0, deals = 0;
+  let openedCount = 0, clickedCount = 0, repliedCount = 0;
+  const tierReplied = [], tierClicked = [], tierOpened = [];
+  const internalDomains = ['versance.ai','tropoly.io'];
+  let real = 0;
+  for (const c of contacts) {
+    const p = c.properties || {};
+    const email = (p.email || '').toLowerCase();
+    const isInternal = internalDomains.some(d => email.endsWith('@'+d)) || email === 'email_not_unlocked@domain.com';
+    if (!isInternal) real++;
+    if (p.hs_sequences_is_enrolled === 'true') active++; else ended++;
+    if (parseInt(p.num_associated_deals || '0', 10) > 0) deals++;
+    if (isInternal) continue;
+    const op = p.hs_sales_email_last_opened ? new Date(p.hs_sales_email_last_opened) : null;
+    const cl = p.hs_sales_email_last_clicked ? new Date(p.hs_sales_email_last_clicked) : null;
+    const re = p.hs_sales_email_last_replied ? new Date(p.hs_sales_email_last_replied) : null;
+    const opened = op && op.getTime() >= CUTOFF_MS;
+    const clicked = cl && cl.getTime() >= CUTOFF_MS;
+    const replied = re && re.getTime() >= CUTOFF_MS;
+    if (opened) openedCount++;
+    if (clicked) clickedCount++;
+    if (replied) repliedCount++;
+    const id = c.id;
+    const fullName = `${p.firstname || ''} ${p.lastname || ''}`.trim() || (p.email || 'Unknown');
+    const company = p.company || '';
+    const base = { id, name: fullName, company };
+    if (replied) {
+      tierReplied.push({ ...base, when: re.toISOString() });
+    } else if (clicked) {
+      tierClicked.push({ ...base, when: cl.toISOString() });
+    } else if (opened) {
+      tierOpened.push({ ...base, when: op.toISOString() });
+    }
+  }
+  [tierReplied, tierClicked, tierOpened].forEach(list => list.sort((a,b) => b.when.localeCompare(a.when)));
+  return {
+    total, real, active, ended, deals,
+    openedCount, clickedCount, repliedCount,
+    replied: tierReplied, clicked: tierClicked, opened: tierOpened
+  };
+}
+
+function renderHero(o) {
+  const denom = o.real || o.total || 1;
+  const pct = (n) => Math.round(100 * n / denom) + '%';
+  document.getElementById('hero-grid').innerHTML = `
+    <div class="hero-stat"><div class="v">${o.openedCount}<span class="pct">${pct(o.openedCount)}</span></div><div class="l">Opened</div></div>
+    <div class="hero-stat"><div class="v">${o.clickedCount}<span class="pct">${pct(o.clickedCount)}</span></div><div class="l">Clicked</div></div>
+    <div class="hero-stat"><div class="v">${o.repliedCount}<span class="pct">${pct(o.repliedCount)}</span></div><div class="l">Replied</div></div>
+  `;
+  let takeaway = '';
+  if (o.openedCount === 0 && o.clickedCount === 0 && o.repliedCount === 0) {
+    takeaway = `No real engagement signals since Apr 20 yet — sequence is still in early send phases for most enrollments.`;
+  } else if (o.repliedCount > 0) {
+    const top = o.replied[0];
+    takeaway = `${o.repliedCount} ${o.repliedCount === 1 ? 'CEO has' : 'CEOs have'} replied since Apr 20 — most recent: ${escapeHtml(top.name)} at ${escapeHtml(top.company)} on ${fmtShortDate(top.when)}. Funnel: ${o.openedCount} opened → ${o.clickedCount} clicked → ${o.repliedCount} replied (out of ${denom} real enrollments).`;
+  } else {
+    takeaway = `${o.openedCount} opened → ${o.clickedCount} clicked → ${o.repliedCount} replied (out of ${denom} real enrollments). Engagement is building; no replies yet.`;
+  }
+  document.getElementById('hero-takeaway').textContent = takeaway;
+}
+
+function renderTier(tier, label, list) {
+  const summary = `<summary><span class="tier-chevron"></span><div class="tier-dot ${tier}"></div><div class="tier-name">${label}</div><div class="tier-count">${list.length}</div></summary>`;
+  if (!list.length) {
+    return `<details class="tier-section">${summary}<div class="tier-empty">None since Apr 20.</div></details>`;
+  }
+  const rows = list.map(c => `<a class="contact" href="${hubspotUrl(c.id)}" target="_blank" rel="noopener">
+    <div class="contact-main">
+      <div class="contact-name">${escapeHtml(c.name)}</div>
+      <div class="contact-co">${escapeHtml(c.company || '—')}</div>
+    </div>
+    <div class="contact-when">${fmtShortDate(c.when)}</div>
+  </a>`).join('');
+  return `<details class="tier-section">${summary}<div class="contact-list">${rows}</div></details>`;
+}
+
+function renderOutcomes(o) {
+  const html = `
+    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Click any tier to expand the list.</div>
+    ${renderTier('replied', 'Replied', o.replied)}
+    ${renderTier('clicked', 'Clicked (no reply yet)', o.clicked)}
+    ${renderTier('opened', 'Opened only (no click or reply)', o.opened)}
+    <div class="subkpis">
+      <div class="subkpi"><div class="v">${o.total}</div><div class="l">Total enrolled</div></div>
+      <div class="subkpi"><div class="v">${o.active}</div><div class="l">Currently active</div></div>
+      <div class="subkpi"><div class="v">${o.ended}</div><div class="l">Sequence ended</div></div>
+      <div class="subkpi"><div class="v">${o.deals}</div><div class="l">Deals created</div></div>
+    </div>
+    <div class="note">Funnel %s in the hero are computed against ${o.real} real enrollments (excluding ${o.total - o.real} internal/test contacts). All engagement timestamps are filtered to <code>>= Apr 20, 2026</code> to exclude pre-cutoff activity.</div>
+  `;
+  document.getElementById('outcomes-body').innerHTML = html;
+}
+
+function renderThroughput(stats) {
+  if (!stats || !stats.workflows) {
+    document.getElementById('throughput-body').innerHTML = '<div class="alert info"><strong>n8n stats unavailable for this snapshot.</strong><br><span style="font-weight:400">WF-D was unreachable when this build ran. Will retry on the next scheduled rebuild.</span></div>';
+    return;
+  }
+  if (stats.cutoff) {
+    const cutoffLabel = fmtCutoff(stats.cutoff);
+    if (cutoffLabel) document.getElementById('throughput-source').textContent = 'n8n · WF-D · since ' + cutoffLabel;
+  }
+  const cards = stats.workflows.map(wf => {
+    const days = wf.runs_by_day || [];
+    const maxDay = Math.max(1, ...days.map(d => (d.success || 0) + (d.error || 0)));
+    const dayRows = days.map(d => {
+      const ok = d.success || 0;
+      const err = d.error || 0;
+      const total = ok + err;
+      if (!total) {
+        return `<div class="day-row empty"><div class="day-label">${fmtDay(d.date)}</div><div class="day-track"></div><div class="day-counts">no runs</div></div>`;
+      }
+      const okPct = (ok / maxDay) * 100;
+      const errPct = (err / maxDay) * 100;
+      const counts = (ok ? `${ok} ok` : '') + (ok && err ? ' · ' : '') + (err ? `${err} err` : '');
+      return `<div class="day-row">
+        <div class="day-label">${fmtDay(d.date)}</div>
+        <div class="day-track">
+          ${ok ? `<div class="day-good" style="width:${okPct}%"></div>` : ''}
+          ${err ? `<div class="day-bad" style="width:${errPct}%"></div>` : ''}
+        </div>
+        <div class="day-counts">${counts}</div>
+      </div>`;
+    }).join('');
+    const rateClass = wf.success_rate_pct >= 95 ? 'pill-good' : (wf.success_rate_pct >= 80 ? 'pill-warn' : 'pill-bad');
+    return `<div class="wf-card">
+      <div class="wf-name">${wf.workflow}</div>
+      <div class="wf-stats">
+        <span class="pill">${fmtNum(wf.total_runs)} runs</span>
+        <span class="pill ${rateClass}">${wf.success_rate_pct}% ok</span>
+        ${wf.error_count > 0 ? `<span class="pill pill-bad">${fmtNum(wf.error_count)} errors</span>` : ''}
+        <span class="median">median ${fmtMs(wf.median_success_duration_ms)}</span>
+      </div>
+      <div class="day-rows">${dayRows}</div>
+    </div>`;
+  }).join('');
+  document.getElementById('throughput-body').innerHTML = cards;
+}
+
+function renderReliability(stats) {
+  if (!stats || !stats.workflows) {
+    document.getElementById('reliability-body').innerHTML = '<div class="muted">n8n stats unavailable for this snapshot.</div>';
+    return;
+  }
+  if (stats.cutoff) {
+    const cutoffLabel = fmtCutoff(stats.cutoff);
+    if (cutoffLabel) document.getElementById('reliability-source').textContent = 'n8n · WF-D · since ' + cutoffLabel;
+  }
+  const errs = stats.workflows
+    .filter(w => w.last_error)
+    .map(w => ({ wf: w.workflow.split(':')[0], when: w.last_error.started_at, mode: w.last_error.mode, count: w.error_count }));
+  errs.sort((a,b) => (b.when || '').localeCompare(a.when || ''));
+  const errList = errs.length ? `<ul class="error-list">${errs.map(e => `<li><span><strong>${e.wf}</strong> · ${e.count} total errors · last via ${e.mode || 'n/a'}</span><span class="when">${relTime(e.when)}</span></li>`).join('')}</ul>` : '<div class="muted">No errors recorded across WF-A/B/C since the cutoff.</div>';
+  const overall = stats.workflows.reduce((acc, w) => { acc.runs += w.total_runs; acc.errs += w.error_count; return acc; }, { runs: 0, errs: 0 });
+  const sysHealth = overall.runs ? Math.round(1000 * (overall.runs - overall.errs) / overall.runs) / 10 : null;
+  document.getElementById('reliability-body').innerHTML = `
+    <div class="kpi-grid">
+      <div class="kpi"><div class="v">${sysHealth == null ? '—' : sysHealth + '%'}</div><div class="l">Overall success rate</div></div>
+      <div class="kpi"><div class="v">${fmtNum(overall.runs)}</div><div class="l">Total executions</div></div>
+      <div class="kpi"><div class="v">${fmtNum(overall.errs)}</div><div class="l">Total errors</div></div>
+    </div>
+    <div style="margin-top:14px">
+      <div class="panel-title" style="margin-bottom:8px">Last error per workflow</div>
+      ${errList}
+    </div>
+  `;
+}
+
+(function init() {
+  const ts = new Date(DATA.generatedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
+  document.getElementById('generated').textContent = 'Snapshot ' + ts;
+
+  const outcomes = aggregateOutcomes(DATA.contacts || []);
+  renderHero(outcomes);
+  renderOutcomes(outcomes);
+
+  renderThroughput(DATA.n8nStats);
+  renderReliability(DATA.n8nStats);
+})();
+</script>
+</body>
+</html>
