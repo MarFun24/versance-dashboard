@@ -1,0 +1,29 @@
+name: Daily Refresh
+
+on:
+  schedule:
+    # 13:00 UTC = 9am ET (EDT) / 8am ET (EST)
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel rebuild
+        env:
+          VERCEL_DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+        run: |
+          if [ -z "$VERCEL_DEPLOY_HOOK" ]; then
+            echo "Missing VERCEL_DEPLOY_HOOK secret"
+            exit 1
+          fi
+          response=$(curl -sS -w "\n%{http_code}" -X POST "$VERCEL_DEPLOY_HOOK")
+          status=$(echo "$response" | tail -n1)
+          body=$(echo "$response" | head -n-1)
+          echo "HTTP $status"
+          echo "$body"
+          if [ "$status" -ge 400 ]; then
+            exit 1
+          fi
