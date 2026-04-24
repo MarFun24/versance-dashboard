@@ -8,21 +8,25 @@
 <style>
 :root {
   color-scheme: light;
-  --bg: #fafaf7;
+  --bg: #f7f5ef;
   --panel: #ffffff;
-  --ink: #1a1a1a;
-  --ink-mute: #5a5a5a;
+  --ink: #161616;
+  --ink-mute: #585858;
   --ink-faint: #8a8a8a;
-  --line: #e8e6df;
+  --line: #e6e4dc;
+  --line-soft: #efede5;
   --accent: #b8543d;
+  --accent-soft: #f3e0db;
   --good: #2d7a4d;
   --bad: #b8543d;
   --warn: #b88a3d;
   --info: #3d6db8;
+  --hot: #c73a3a;
   --tier-replied: #b8543d;
   --tier-clicked: #b88a3d;
   --tier-opened: #2d7a4d;
-  --shadow: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 2px rgba(20,20,15,0.04), 0 1px 1px rgba(20,20,15,0.02);
+  --shadow-lift: 0 2px 6px rgba(20,20,15,0.06), 0 1px 2px rgba(20,20,15,0.04);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -33,22 +37,37 @@ body {
   line-height: 1.45;
   padding: 24px 16px;
 }
-.container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 4px; flex-wrap: wrap; gap: 8px; }
-.title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.container { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+header { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 2px 6px; flex-wrap: wrap; gap: 8px; }
+.title { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; }
 .subtitle { font-size: 12px; color: var(--ink-faint); }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
-.panel-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
-.panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; box-shadow: var(--shadow); transition: box-shadow 0.18s ease; }
+.panel:hover { box-shadow: var(--shadow-lift); }
+.panel-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+.panel-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
 .panel-source { font-size: 11px; color: var(--ink-faint); font-style: italic; text-align: right; }
-.hero { background: var(--ink); color: #f4f1ea; padding: 20px 18px; border-radius: 8px; }
-.hero .lead { font-size: 13px; opacity: 0.7; margin-bottom: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+.hero { background: linear-gradient(180deg, #1f1f1c 0%, #151513 100%); color: #f4f1ea; padding: 22px 20px; border-radius: 10px; border: 1px solid #1f1f1c; }
+.hero .lead { font-size: 13px; opacity: 0.65; margin-bottom: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
 .hero-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .hero-stat { display: flex; flex-direction: column; gap: 2px; }
-.hero-stat .v { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
-.hero-stat .v .pct { font-size: 14px; font-weight: 500; opacity: 0.65; margin-left: 6px; letter-spacing: 0; }
-.hero-stat .l { font-size: 11px; opacity: 0.65; }
-.hero .takeaway { margin-top: 14px; font-size: 13px; opacity: 0.85; line-height: 1.4; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+.hero-stat .v { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.hero-stat .v .pct { font-size: 14px; font-weight: 500; opacity: 0.6; margin-left: 6px; letter-spacing: 0; }
+.hero-stat .l { font-size: 11px; opacity: 0.65; letter-spacing: 0.02em; }
+.hero .takeaway { margin-top: 16px; font-size: 13px; opacity: 0.85; line-height: 1.5; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+.today-panel { padding: 20px; background: linear-gradient(180deg, #ffffff 0%, #fbf9f2 100%); border: 1px solid var(--line); }
+.today-panel .lead { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 14px; }
+.today-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.today-stat { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #fafaf4; border: 1px solid var(--line-soft); border-radius: 8px; transition: transform 0.15s ease, border-color 0.15s ease; }
+.today-stat:hover { border-color: var(--line); transform: translateY(-1px); }
+.today-stat .v { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+.today-stat .l { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-mute); }
+.today-stat .hint { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+.today-footnote { font-size: 11px; color: var(--ink-faint); margin-top: 12px; font-style: italic; }
+
+.hot-badge { display: inline-flex; align-items: center; gap: 6px; background: #fdeaea; color: var(--hot); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 999px; border: 1px solid #f5c7c7; }
+.hot-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
 
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
 .kpi { display: flex; flex-direction: column; gap: 2px; }
@@ -83,11 +102,17 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .tier-count { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .tier-empty { font-size: 12px; color: var(--ink-faint); padding: 4px 12px 10px 30px; font-style: italic; }
 .contact-list { display: flex; flex-direction: column; padding: 4px 6px 8px; }
-.contact { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 12px; padding: 8px 12px; border-radius: 4px; text-decoration: none; color: inherit; transition: background 0.1s; }
-.contact:hover { background: rgba(0,0,0,0.04); }
+.contact { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: inherit; transition: background 0.12s ease; }
+.contact:hover { background: rgba(0,0,0,0.035); }
+.contact.hot { box-shadow: inset 2px 0 0 var(--hot); }
 .contact-main { min-width: 0; overflow: hidden; }
 .contact-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-name .hot-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); margin-right: 8px; vertical-align: middle; box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
 .contact-co { font-size: 12px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-counts { display: flex; gap: 6px; font-size: 11px; color: var(--ink-mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.contact-counts .count { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 999px; background: #f4f2ec; }
+.contact-counts .count.opens { color: var(--tier-opened); background: #e7f1eb; }
+.contact-counts .count.replies { color: var(--tier-replied); background: #f6e4df; }
 .contact-when { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .wf-stats { display: flex; gap: 10px; font-size: 12px; color: var(--ink-mute); margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
@@ -190,10 +215,19 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 
 <section class="panel" id="outcomes-panel">
   <div class="panel-header">
-    <div class="panel-title">Engaged Contacts</div>
+    <div class="panel-title-row">
+      <div class="panel-title">Engaged Contacts</div>
+      <div class="hot-badge gate-hidden" id="hot-badge"></div>
+    </div>
     <div class="panel-source" id="outcomes-source">HubSpot · sequence 303463253 · since Apr 20</div>
   </div>
   <div id="outcomes-body"></div>
+</section>
+
+<section class="panel today-panel" id="today-panel">
+  <div class="lead">Today's Activity</div>
+  <div class="today-grid" id="today-grid"></div>
+  <div class="today-footnote" id="today-footnote"></div>
 </section>
 
 <section class="panel" id="throughput-panel">
@@ -256,15 +290,26 @@ function aggregateOutcomes(contacts) {
   const total = contacts.length;
   let active = 0, ended = 0;
   let openedCount = 0, clickedCount = 0, repliedCount = 0;
+  let hotCount = 0;
+  let todayEnrollments = 0;
   const tierReplied = [], tierClicked = [], tierOpened = [];
   const internalDomains = ['versance.ai','tropoly.io'];
   let real = 0;
+  const now = Date.now();
+  const HOT_WINDOW_MS = 48 * 60 * 60 * 1000;
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayStartMs = todayStart.getTime();
+  const todayEndMs = todayStartMs + 24 * 60 * 60 * 1000;
   for (const c of contacts) {
     const p = c.properties || {};
     const email = (p.email || '').toLowerCase();
     const isInternal = internalDomains.some(d => email.endsWith('@'+d)) || email === 'email_not_unlocked@domain.com';
     if (!isInternal) real++;
     if (p.hs_sequences_is_enrolled === 'true') active++; else ended++;
+    if (!isInternal && p.hs_latest_sequence_enrolled_date) {
+      const enr = new Date(p.hs_latest_sequence_enrolled_date).getTime();
+      if (enr >= todayStartMs && enr < todayEndMs) todayEnrollments++;
+    }
     if (isInternal) continue;
     const op = p.hs_sales_email_last_opened ? new Date(p.hs_sales_email_last_opened) : null;
     const cl = p.hs_sales_email_last_clicked ? new Date(p.hs_sales_email_last_clicked) : null;
@@ -275,10 +320,19 @@ function aggregateOutcomes(contacts) {
     if (opened) openedCount++;
     if (clicked) clickedCount++;
     if (replied) repliedCount++;
+    const clickedHot = cl && (now - cl.getTime()) <= HOT_WINDOW_MS && cl.getTime() >= CUTOFF_MS;
+    const repliedHot = re && (now - re.getTime()) <= HOT_WINDOW_MS && re.getTime() >= CUTOFF_MS;
+    const isHot = !!(clickedHot || repliedHot);
+    if (isHot) hotCount++;
+    const opens = parseInt(p.hs_email_open || '0', 10) || 0;
+    const rawReplies = parseInt(p.hs_email_reply || '0', 10);
+    const replies = Number.isFinite(rawReplies) && rawReplies > 0
+      ? rawReplies
+      : (replied ? 1 : 0);
     const id = c.id;
     const fullName = `${p.firstname || ''} ${p.lastname || ''}`.trim() || (p.email || 'Unknown');
     const company = p.company || '';
-    const base = { id, name: fullName, company };
+    const base = { id, name: fullName, company, opens, replies, hot: isHot };
     if (replied) {
       tierReplied.push({ ...base, when: re.toISOString() });
     } else if (clicked) {
@@ -291,6 +345,7 @@ function aggregateOutcomes(contacts) {
   return {
     total, real, active, ended,
     openedCount, clickedCount, repliedCount,
+    hotCount, todayEnrollments,
     replied: tierReplied, clicked: tierClicked, opened: tierOpened
   };
 }
@@ -315,24 +370,40 @@ function renderHero(o) {
   document.getElementById('hero-takeaway').textContent = takeaway;
 }
 
+function renderContactCounts(c) {
+  const parts = [];
+  if (c.opens > 0) parts.push(`<span class="count opens">${c.opens} ${c.opens === 1 ? 'open' : 'opens'}</span>`);
+  if (c.replies > 0) parts.push(`<span class="count replies">${c.replies} ${c.replies === 1 ? 'reply' : 'replies'}</span>`);
+  return parts.length ? `<div class="contact-counts">${parts.join('')}</div>` : '<div class="contact-counts"></div>';
+}
+
 function renderTier(tier, label, list) {
   const summary = `<summary><span class="tier-chevron"></span><div class="tier-dot ${tier}"></div><div class="tier-name">${label}</div><div class="tier-count">${list.length}</div></summary>`;
   if (!list.length) {
     return `<details class="tier-section">${summary}<div class="tier-empty">None since Apr 20.</div></details>`;
   }
-  const rows = list.map(c => `<a class="contact" href="${hubspotUrl(c.id)}" target="_blank" rel="noopener">
+  const rows = list.map(c => `<a class="contact${c.hot ? ' hot' : ''}" href="${hubspotUrl(c.id)}" target="_blank" rel="noopener">
     <div class="contact-main">
-      <div class="contact-name">${escapeHtml(c.name)}</div>
+      <div class="contact-name">${c.hot ? '<span class="hot-dot" title="Clicked or replied in the last 48h"></span>' : ''}${escapeHtml(c.name)}</div>
       <div class="contact-co">${escapeHtml(c.company || '—')}</div>
     </div>
+    ${renderContactCounts(c)}
     <div class="contact-when">${fmtShortDate(c.when)}</div>
   </a>`).join('');
   return `<details class="tier-section">${summary}<div class="contact-list">${rows}</div></details>`;
 }
 
 function renderOutcomes(o) {
+  const hotBadge = document.getElementById('hot-badge');
+  if (o.hotCount > 0) {
+    hotBadge.textContent = `${o.hotCount} hot ${o.hotCount === 1 ? 'lead' : 'leads'} · 48h`;
+    hotBadge.classList.remove('gate-hidden');
+    hotBadge.title = `${o.hotCount} ${o.hotCount === 1 ? 'contact' : 'contacts'} clicked or replied in the last 48 hours`;
+  } else {
+    hotBadge.classList.add('gate-hidden');
+  }
   const html = `
-    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Click any tier to expand the list.</div>
+    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Contacts with a red dot clicked or replied in the last 48 hours. Click any tier to expand the list.</div>
     ${renderTier('replied', 'Replied', o.replied)}
     ${renderTier('clicked', 'Clicked (no reply yet)', o.clicked)}
     ${renderTier('opened', 'Opened only (no click or reply)', o.opened)}
@@ -344,6 +415,34 @@ function renderOutcomes(o) {
     <div class="note">Funnel %s in the hero are computed against ${o.real} real enrollments (excluding ${o.total - o.real} internal/test contacts). All engagement timestamps are filtered to <code>>= Apr 20, 2026</code> to exclude pre-cutoff activity.</div>
   `;
   document.getElementById('outcomes-body').innerHTML = html;
+}
+
+function renderToday(stats, outcomes) {
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayIso = todayStart.toISOString().slice(0, 10);
+  let qualifiedReleases = 0;
+  let sourceLabel = 'enrichment engine';
+  if (stats && Array.isArray(stats.workflows) && stats.workflows.length) {
+    const enrichment = stats.workflows.find(w => /enrich/i.test(w.workflow || '')) || stats.workflows[0];
+    sourceLabel = enrichment.workflow || sourceLabel;
+    const dayEntry = (enrichment.runs_by_day || []).find(d => d.date === todayIso);
+    qualifiedReleases = dayEntry ? (dayEntry.success || 0) : 0;
+  }
+  const enrollments = outcomes.todayEnrollments || 0;
+  const todayLabel = todayStart.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById('today-grid').innerHTML = `
+    <div class="today-stat">
+      <div class="v">${fmtNum(qualifiedReleases)}</div>
+      <div class="l">Today's Qualified Releases</div>
+      <div class="hint">from ${escapeHtml(sourceLabel)}</div>
+    </div>
+    <div class="today-stat">
+      <div class="v">${fmtNum(enrollments)}</div>
+      <div class="l">Today's Enrollments</div>
+      <div class="hint">HubSpot sequence ${SEQUENCE_ID}</div>
+    </div>
+  `;
+  document.getElementById('today-footnote').textContent = `Snapshot for ${todayLabel}.`;
 }
 
 function renderThroughput(stats) {
@@ -439,6 +538,7 @@ function renderDashboard() {
   renderHero(outcomes);
   renderOutcomes(outcomes);
 
+  renderToday(DATA.n8nStats, outcomes);
   renderThroughput(DATA.n8nStats);
   renderReliability(DATA.n8nStats);
 }
