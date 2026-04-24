@@ -90,10 +90,6 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .contact-co { font-size: 12px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact-when { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-.wf-card { padding: 14px 0; border-top: 1px solid var(--line); }
-.wf-card:first-child { border-top: none; padding-top: 0; }
-.wf-card:last-child { padding-bottom: 0; }
-.wf-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
 .wf-stats { display: flex; gap: 10px; font-size: 12px; color: var(--ink-mute); margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
 .wf-stats span { font-variant-numeric: tabular-nums; }
 .wf-stats .pill { background: #f0ede5; padding: 2px 7px; border-radius: 3px; color: var(--ink); }
@@ -101,6 +97,12 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .wf-stats .pill-warn { background: #fdf2dc; color: #8a6510; }
 .wf-stats .pill-bad { background: #f3e0db; color: var(--bad); }
 .wf-stats .median { color: var(--ink-faint); margin-left: auto; }
+.wf-summary-stats { display: flex; gap: 6px; font-size: 11px; flex-wrap: wrap; align-items: center; font-variant-numeric: tabular-nums; }
+.wf-summary-stats .pill { background: #f0ede5; padding: 2px 7px; border-radius: 3px; color: var(--ink); }
+.wf-summary-stats .pill-good { background: #e1efe5; color: var(--good); }
+.wf-summary-stats .pill-warn { background: #fdf2dc; color: #8a6510; }
+.wf-summary-stats .pill-bad { background: #f3e0db; color: var(--bad); }
+.wf-details { padding: 4px 12px 12px 30px; }
 
 .day-rows { display: flex; flex-direction: column; gap: 4px; }
 .day-row { display: grid; grid-template-columns: 56px 1fr 110px; gap: 10px; align-items: center; font-size: 12px; }
@@ -129,9 +131,35 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 .subkpi { display: flex; flex-direction: column; gap: 1px; }
 .subkpi .v { font-size: 16px; font-weight: 600; }
 .subkpi .l { font-size: 11px; color: var(--ink-mute); }
+
+.gate-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+.gate-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 28px 24px; max-width: 360px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+.gate-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.gate-subtitle { font-size: 12px; color: var(--ink-faint); }
+.gate-form { display: flex; flex-direction: column; gap: 10px; }
+.gate-input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); outline: none; }
+.gate-input:focus { border-color: var(--ink-mute); }
+.gate-button { font: inherit; font-weight: 600; padding: 10px 12px; border: none; border-radius: 6px; background: var(--ink); color: #f4f1ea; cursor: pointer; }
+.gate-button:hover { opacity: 0.9; }
+.gate-error { font-size: 12px; color: var(--bad); min-height: 16px; }
+.gate-hidden { display: none !important; }
 </style>
 </head>
 <body>
+
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-card">
+    <div>
+      <div class="gate-title">Versance Reporting</div>
+      <div class="gate-subtitle">Enter the password to view the dashboard.</div>
+    </div>
+    <form class="gate-form" id="gate-form">
+      <input class="gate-input" id="gate-input" type="password" placeholder="Password" autocomplete="current-password" autofocus>
+      <div class="gate-error" id="gate-error"></div>
+      <button class="gate-button" type="submit">Unlock</button>
+    </form>
+  </div>
+</div>
 
 <script id="versance-data" type="application/json">
 {
@@ -144,7 +172,7 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 }
 </script>
 
-<div class="container">
+<div class="container gate-hidden" id="main-container">
 
 <header>
   <div>
@@ -226,7 +254,7 @@ function hubspotUrl(id) { return `https://app.hubspot.com/contacts/${PORTAL_ID}/
 
 function aggregateOutcomes(contacts) {
   const total = contacts.length;
-  let active = 0, ended = 0, deals = 0;
+  let active = 0, ended = 0;
   let openedCount = 0, clickedCount = 0, repliedCount = 0;
   const tierReplied = [], tierClicked = [], tierOpened = [];
   const internalDomains = ['versance.ai','tropoly.io'];
@@ -237,7 +265,6 @@ function aggregateOutcomes(contacts) {
     const isInternal = internalDomains.some(d => email.endsWith('@'+d)) || email === 'email_not_unlocked@domain.com';
     if (!isInternal) real++;
     if (p.hs_sequences_is_enrolled === 'true') active++; else ended++;
-    if (parseInt(p.num_associated_deals || '0', 10) > 0) deals++;
     if (isInternal) continue;
     const op = p.hs_sales_email_last_opened ? new Date(p.hs_sales_email_last_opened) : null;
     const cl = p.hs_sales_email_last_clicked ? new Date(p.hs_sales_email_last_clicked) : null;
@@ -262,7 +289,7 @@ function aggregateOutcomes(contacts) {
   }
   [tierReplied, tierClicked, tierOpened].forEach(list => list.sort((a,b) => b.when.localeCompare(a.when)));
   return {
-    total, real, active, ended, deals,
+    total, real, active, ended,
     openedCount, clickedCount, repliedCount,
     replied: tierReplied, clicked: tierClicked, opened: tierOpened
   };
@@ -313,7 +340,6 @@ function renderOutcomes(o) {
       <div class="subkpi"><div class="v">${o.total}</div><div class="l">Total enrolled</div></div>
       <div class="subkpi"><div class="v">${o.active}</div><div class="l">Currently active</div></div>
       <div class="subkpi"><div class="v">${o.ended}</div><div class="l">Sequence ended</div></div>
-      <div class="subkpi"><div class="v">${o.deals}</div><div class="l">Deals created</div></div>
     </div>
     <div class="note">Funnel %s in the hero are computed against ${o.real} real enrollments (excluding ${o.total - o.real} internal/test contacts). All engagement timestamps are filtered to <code>>= Apr 20, 2026</code> to exclude pre-cutoff activity.</div>
   `;
@@ -330,7 +356,7 @@ function renderThroughput(stats) {
     if (cutoffLabel) document.getElementById('throughput-source').textContent = 'n8n · WF-D · since ' + cutoffLabel;
   }
   const cards = stats.workflows.map(wf => {
-    const days = wf.runs_by_day || [];
+    const days = (wf.runs_by_day || []).slice(-5);
     const maxDay = Math.max(1, ...days.map(d => (d.success || 0) + (d.error || 0)));
     const dayRows = days.map(d => {
       const ok = d.success || 0;
@@ -352,18 +378,22 @@ function renderThroughput(stats) {
       </div>`;
     }).join('');
     const rateClass = wf.success_rate_pct >= 95 ? 'pill-good' : (wf.success_rate_pct >= 80 ? 'pill-warn' : 'pill-bad');
-    return `<div class="wf-card">
-      <div class="wf-name">${wf.workflow}</div>
-      <div class="wf-stats">
+    const summary = `<summary>
+      <span class="tier-chevron"></span>
+      <div class="tier-name">${escapeHtml(wf.workflow)}</div>
+      <div class="wf-summary-stats">
         <span class="pill">${fmtNum(wf.total_runs)} runs</span>
         <span class="pill ${rateClass}">${wf.success_rate_pct}% ok</span>
-        ${wf.error_count > 0 ? `<span class="pill pill-bad">${fmtNum(wf.error_count)} errors</span>` : ''}
-        <span class="median">median ${fmtMs(wf.median_success_duration_ms)}</span>
+        ${wf.error_count > 0 ? `<span class="pill pill-bad">${fmtNum(wf.error_count)} err</span>` : ''}
       </div>
+    </summary>`;
+    const body = `<div class="wf-details">
+      <div class="wf-stats"><span class="median">median ${fmtMs(wf.median_success_duration_ms)}</span></div>
       <div class="day-rows">${dayRows}</div>
     </div>`;
+    return `<details class="tier-section">${summary}${body}</details>`;
   }).join('');
-  document.getElementById('throughput-body').innerHTML = cards;
+  document.getElementById('throughput-body').innerHTML = `<div class="muted" style="margin-bottom:14px;font-size:12px">Showing the last 5 days of runs per workflow. Click any workflow to expand the daily breakdown.</div>${cards}`;
 }
 
 function renderReliability(stats) {
@@ -395,7 +425,13 @@ function renderReliability(stats) {
   `;
 }
 
-(function init() {
+const GATE_PASSWORD = 'George';
+const GATE_STORAGE_KEY = 'versance-gate-unlocked';
+let dashboardRendered = false;
+
+function renderDashboard() {
+  if (dashboardRendered) return;
+  dashboardRendered = true;
   const ts = new Date(DATA.generatedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
   document.getElementById('generated').textContent = 'Snapshot ' + ts;
 
@@ -405,6 +441,33 @@ function renderReliability(stats) {
 
   renderThroughput(DATA.n8nStats);
   renderReliability(DATA.n8nStats);
+}
+
+function unlockDashboard() {
+  document.getElementById('gate-overlay').classList.add('gate-hidden');
+  document.getElementById('main-container').classList.remove('gate-hidden');
+  renderDashboard();
+}
+
+(function initGate() {
+  if (sessionStorage.getItem(GATE_STORAGE_KEY) === '1') {
+    unlockDashboard();
+    return;
+  }
+  const form = document.getElementById('gate-form');
+  const input = document.getElementById('gate-input');
+  const error = document.getElementById('gate-error');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (input.value === GATE_PASSWORD) {
+      sessionStorage.setItem(GATE_STORAGE_KEY, '1');
+      error.textContent = '';
+      unlockDashboard();
+    } else {
+      error.textContent = 'Incorrect password.';
+      input.select();
+    }
+  });
 })();
 </script>
 </body>
