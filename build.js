@@ -48,11 +48,39 @@ async function fetchN8nStats() {
       headers: { 'Content-Type': 'application/json' },
       body: '{}'
     });
+    const bodyText = await res.text();
     if (!res.ok) {
-      console.warn(`WF-D returned ${res.status}, continuing without n8n stats`);
+      console.warn(`WF-D returned ${res.status}. Body (first 500 chars): ${bodyText.slice(0, 500)}`);
       return null;
     }
-    return await res.json();
+    let parsed;
+    try {
+      parsed = JSON.parse(bodyText);
+    } catch (e) {
+      console.warn(`WF-D returned non-JSON response (${bodyText.length} bytes). First 500 chars: ${bodyText.slice(0, 500)}`);
+      return null;
+    }
+    if (Array.isArray(parsed)) {
+      if (parsed.length === 1 && parsed[0] && typeof parsed[0] === 'object') {
+        console.log('  WF-D returned an array-wrapped object, unwrapping');
+        parsed = parsed[0];
+      } else {
+        console.warn(`WF-D returned an array of length ${parsed.length}; expected an object. Using null.`);
+        return null;
+      }
+    }
+    console.log(`  WF-D payload keys: ${Object.keys(parsed || {}).join(', ') || '(none)'}`);
+    if (parsed && Array.isArray(parsed.contact_engagement)) {
+      console.log(`  WF-D contact_engagement entries: ${parsed.contact_engagement.length}`);
+    } else {
+      console.log('  WF-D contact_engagement: missing or not an array');
+    }
+    if (parsed && Array.isArray(parsed.drop_reasons_today)) {
+      console.log(`  WF-D drop_reasons_today entries: ${parsed.drop_reasons_today.length}`);
+    } else {
+      console.log('  WF-D drop_reasons_today: missing or not an array');
+    }
+    return parsed;
   } catch (e) {
     console.warn('WF-D fetch failed, continuing without n8n stats:', e.message);
     return null;
