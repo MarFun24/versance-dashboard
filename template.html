@@ -58,12 +58,14 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 
 .today-panel { padding: 20px; background: linear-gradient(180deg, #ffffff 0%, #fbf9f2 100%); border: 1px solid var(--line); }
 .today-panel .lead { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 14px; }
-.today-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-.today-stat { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #fafaf4; border: 1px solid var(--line-soft); border-radius: 8px; transition: transform 0.15s ease, border-color 0.15s ease; }
+.today-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+@media (max-width: 700px) { .today-grid { grid-template-columns: 1fr; } }
+.today-stat { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #fafaf4; border: 1px solid var(--line-soft); border-radius: 8px; transition: transform 0.15s ease, border-color 0.15s ease; min-width: 0; }
 .today-stat:hover { border-color: var(--line); transform: translateY(-1px); }
-.today-stat .v { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+.today-stat .v { font-size: 28px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+.today-stat .v .pct { font-size: 13px; font-weight: 500; color: var(--ink-mute); margin-left: 8px; letter-spacing: 0; }
 .today-stat .l { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-mute); }
-.today-stat .hint { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+.today-stat .hint { font-size: 11px; color: var(--ink-faint); margin-top: 2px; line-height: 1.35; }
 .today-footnote { font-size: 11px; color: var(--ink-faint); margin-top: 12px; font-style: italic; }
 .today-gap { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 8px; background: #fafaf4; overflow: hidden; }
 .today-gap[open] { background: #fbfaf3; border-color: var(--line); }
@@ -446,18 +448,53 @@ function extractDropReasons(stats, enrichmentWorkflow) {
   return null;
 }
 
+function extractDailyCount(workflow, todayIso, extraFields) {
+  if (!workflow) return null;
+  for (const field of extraFields) {
+    if (workflow[field] != null && Number.isFinite(Number(workflow[field]))) {
+      return Number(workflow[field]);
+    }
+  }
+  const dayMap = workflow.items_by_day || workflow.counts_by_day;
+  if (dayMap && typeof dayMap === 'object') {
+    const entry = Array.isArray(dayMap) ? dayMap.find(d => d.date === todayIso) : { value: dayMap[todayIso] };
+    if (entry && Number.isFinite(Number(entry.value ?? entry.count ?? entry.items))) {
+      return Number(entry.value ?? entry.count ?? entry.items);
+    }
+  }
+  return null;
+}
+
+function fmtPctOf(numer, denom) {
+  if (!denom || denom <= 0) return null;
+  return Math.round((numer / denom) * 100);
+}
+
 function renderToday(stats, outcomes) {
   const todayStart = new Date(); todayStart.setHours(0,0,0,0);
   const todayIso = todayStart.toISOString().slice(0, 10);
+
+  let pressReleases = null;
+  let pressReleasesSource = 'WF-A';
   let qualifiedReleases = 0;
-  let sourceLabel = 'enrichment engine';
+  let qualifiedSource = 'enrichment engine';
   let enrichmentWorkflow = null;
+  let pressReleaseWorkflow = null;
+
   if (stats && Array.isArray(stats.workflows) && stats.workflows.length) {
-    enrichmentWorkflow = stats.workflows.find(w => /enrich/i.test(w.workflow || '')) || stats.workflows[0];
-    sourceLabel = enrichmentWorkflow.workflow || sourceLabel;
-    const dayEntry = (enrichmentWorkflow.runs_by_day || []).find(d => d.date === todayIso);
-    qualifiedReleases = dayEntry ? (dayEntry.success || 0) : 0;
+    pressReleaseWorkflow = stats.workflows.find(w => /press|orchestrat|wf-?a/i.test(w.workflow || '')) || null;
+    enrichmentWorkflow = stats.workflows.find(w => /enrich|wf-?b/i.test(w.workflow || '')) || stats.workflows[0];
+    qualifiedSource = enrichmentWorkflow?.workflow || qualifiedSource;
+    pressReleasesSource = pressReleaseWorkflow?.workflow || pressReleasesSource;
+
+    const qualifiedDay = (enrichmentWorkflow?.runs_by_day || []).find(d => d.date === todayIso);
+    qualifiedReleases = qualifiedDay ? (qualifiedDay.success || 0) : 0;
+
+    pressReleases = extractDailyCount(pressReleaseWorkflow, todayIso, [
+      'press_releases_today', 'releases_today', 'items_today', 'crawled_today'
+    ]);
   }
+
   const enrollments = outcomes.todayEnrollments || 0;
   const gap = Math.max(0, qualifiedReleases - enrollments);
   const todayLabel = todayStart.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
@@ -465,10 +502,9 @@ function renderToday(stats, outcomes) {
   let gapHtml = '';
   if (qualifiedReleases > 0 && gap > 0) {
     const reasons = extractDropReasons(stats, enrichmentWorkflow);
-    let reasonedTotal = 0;
     let body;
     if (reasons && reasons.length) {
-      reasonedTotal = reasons.reduce((a, r) => a + r.count, 0);
+      const reasonedTotal = reasons.reduce((a, r) => a + r.count, 0);
       const rows = reasons.map(r => `<li><span class="reason">${escapeHtml(r.reason)}</span><span class="reason-count">${fmtNum(r.count)}</span></li>`).join('');
       const unaccounted = gap - reasonedTotal;
       const residual = unaccounted > 0
@@ -490,16 +526,29 @@ function renderToday(stats, outcomes) {
     `;
   }
 
+  const qualifiedPct = fmtPctOf(qualifiedReleases, pressReleases);
+  const enrolledPct = fmtPctOf(enrollments, qualifiedReleases);
+
+  const pressReleasesValue = pressReleases == null ? '—' : fmtNum(pressReleases);
+  const pressReleasesHint = pressReleases == null
+    ? `from ${escapeHtml(pressReleasesSource)} · awaiting per-release count`
+    : `from ${escapeHtml(pressReleasesSource)}`;
+
   document.getElementById('today-grid').innerHTML = `
     <div class="today-stat">
-      <div class="v">${fmtNum(qualifiedReleases)}</div>
-      <div class="l">Today's Qualified Releases</div>
-      <div class="hint">from ${escapeHtml(sourceLabel)}</div>
+      <div class="v">${pressReleasesValue}</div>
+      <div class="l">Press Releases in JMN Email</div>
+      <div class="hint">${pressReleasesHint}</div>
     </div>
     <div class="today-stat">
-      <div class="v">${fmtNum(enrollments)}</div>
+      <div class="v">${fmtNum(qualifiedReleases)}${qualifiedPct != null ? `<span class="pct">${qualifiedPct}%</span>` : ''}</div>
+      <div class="l">Today's Qualified Releases</div>
+      <div class="hint">from ${escapeHtml(qualifiedSource)}${qualifiedPct != null ? ` · ${qualifiedPct}% of press releases` : ''}</div>
+    </div>
+    <div class="today-stat">
+      <div class="v">${fmtNum(enrollments)}${enrolledPct != null ? `<span class="pct">${enrolledPct}%</span>` : ''}</div>
       <div class="l">Today's Enrollments</div>
-      <div class="hint">HubSpot sequence ${SEQUENCE_ID}</div>
+      <div class="hint">HubSpot sequence ${SEQUENCE_ID}${enrolledPct != null ? ` · ${enrolledPct}% of qualified` : ''}</div>
     </div>
   `;
   document.getElementById('today-gap-slot').innerHTML = gapHtml;
