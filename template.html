@@ -65,6 +65,21 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .today-stat .l { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-mute); }
 .today-stat .hint { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
 .today-footnote { font-size: 11px; color: var(--ink-faint); margin-top: 12px; font-style: italic; }
+.today-gap { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 8px; background: #fafaf4; overflow: hidden; }
+.today-gap[open] { background: #fbfaf3; border-color: var(--line); }
+.today-gap > summary { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; user-select: none; list-style: none; outline: none; }
+.today-gap > summary::-webkit-details-marker { display: none; }
+.today-gap > summary:hover { background: rgba(0,0,0,0.02); }
+.today-gap .gap-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); }
+.today-gap .gap-value { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.today-gap .gap-body { padding: 4px 14px 14px 30px; }
+.today-gap .gap-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.today-gap .gap-reasons li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: 4px; font-size: 12px; color: var(--ink); }
+.today-gap .gap-reasons li:nth-child(odd) { background: rgba(255,255,255,0.6); }
+.today-gap .gap-reasons li.residual { color: var(--ink-mute); font-style: italic; }
+.today-gap .gap-reasons .reason-count { font-variant-numeric: tabular-nums; color: var(--ink-mute); font-weight: 600; }
+.today-gap .gap-note { font-size: 12px; color: var(--ink-mute); line-height: 1.5; }
+.today-gap .gap-note code { font-size: 11px; background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 3px; }
 
 .hot-badge { display: inline-flex; align-items: center; gap: 6px; background: #fdeaea; color: var(--hot); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 999px; border: 1px solid #f5c7c7; }
 .hot-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
@@ -93,7 +108,8 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
   transition: transform 0.15s;
   margin-left: -2px; flex-shrink: 0;
 }
-.tier-section[open] > summary .tier-chevron { transform: rotate(45deg); margin-top: -3px; }
+.tier-section[open] > summary .tier-chevron,
+.today-gap[open] > summary .tier-chevron { transform: rotate(45deg); margin-top: -3px; }
 .tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .tier-dot.replied { background: var(--tier-replied); }
 .tier-dot.clicked { background: var(--tier-clicked); }
@@ -102,17 +118,13 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .tier-count { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .tier-empty { font-size: 12px; color: var(--ink-faint); padding: 4px 12px 10px 30px; font-style: italic; }
 .contact-list { display: flex; flex-direction: column; padding: 4px 6px 8px; }
-.contact { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: inherit; transition: background 0.12s ease; }
+.contact { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: inherit; transition: background 0.12s ease; }
 .contact:hover { background: rgba(0,0,0,0.035); }
 .contact.hot { box-shadow: inset 2px 0 0 var(--hot); }
 .contact-main { min-width: 0; overflow: hidden; }
 .contact-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact-name .hot-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); margin-right: 8px; vertical-align: middle; box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
 .contact-co { font-size: 12px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.contact-counts { display: flex; gap: 6px; font-size: 11px; color: var(--ink-mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.contact-counts .count { display: inline-flex; align-items: center; gap: 3px; padding: 1px 7px; border-radius: 999px; background: #f4f2ec; }
-.contact-counts .count.opens { color: var(--tier-opened); background: #e7f1eb; }
-.contact-counts .count.replies { color: var(--tier-replied); background: #f6e4df; }
 .contact-when { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
 .wf-stats { display: flex; gap: 10px; font-size: 12px; color: var(--ink-mute); margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
@@ -227,6 +239,7 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 <section class="panel today-panel" id="today-panel">
   <div class="lead">Today's Activity</div>
   <div class="today-grid" id="today-grid"></div>
+  <div id="today-gap-slot"></div>
   <div class="today-footnote" id="today-footnote"></div>
 </section>
 
@@ -324,15 +337,10 @@ function aggregateOutcomes(contacts) {
     const repliedHot = re && (now - re.getTime()) <= HOT_WINDOW_MS && re.getTime() >= CUTOFF_MS;
     const isHot = !!(clickedHot || repliedHot);
     if (isHot) hotCount++;
-    const opens = parseInt(p.hs_email_open || '0', 10) || 0;
-    const rawReplies = parseInt(p.hs_email_reply || '0', 10);
-    const replies = Number.isFinite(rawReplies) && rawReplies > 0
-      ? rawReplies
-      : (replied ? 1 : 0);
     const id = c.id;
     const fullName = `${p.firstname || ''} ${p.lastname || ''}`.trim() || (p.email || 'Unknown');
     const company = p.company || '';
-    const base = { id, name: fullName, company, opens, replies, hot: isHot };
+    const base = { id, name: fullName, company, hot: isHot };
     if (replied) {
       tierReplied.push({ ...base, when: re.toISOString() });
     } else if (clicked) {
@@ -370,13 +378,6 @@ function renderHero(o) {
   document.getElementById('hero-takeaway').textContent = takeaway;
 }
 
-function renderContactCounts(c) {
-  const parts = [];
-  if (c.opens > 0) parts.push(`<span class="count opens">${c.opens} ${c.opens === 1 ? 'open' : 'opens'}</span>`);
-  if (c.replies > 0) parts.push(`<span class="count replies">${c.replies} ${c.replies === 1 ? 'reply' : 'replies'}</span>`);
-  return parts.length ? `<div class="contact-counts">${parts.join('')}</div>` : '<div class="contact-counts"></div>';
-}
-
 function renderTier(tier, label, list) {
   const summary = `<summary><span class="tier-chevron"></span><div class="tier-dot ${tier}"></div><div class="tier-name">${label}</div><div class="tier-count">${list.length}</div></summary>`;
   if (!list.length) {
@@ -387,7 +388,6 @@ function renderTier(tier, label, list) {
       <div class="contact-name">${c.hot ? '<span class="hot-dot" title="Clicked or replied in the last 48h"></span>' : ''}${escapeHtml(c.name)}</div>
       <div class="contact-co">${escapeHtml(c.company || '—')}</div>
     </div>
-    ${renderContactCounts(c)}
     <div class="contact-when">${fmtShortDate(c.when)}</div>
   </a>`).join('');
   return `<details class="tier-section">${summary}<div class="contact-list">${rows}</div></details>`;
@@ -417,19 +417,77 @@ function renderOutcomes(o) {
   document.getElementById('outcomes-body').innerHTML = html;
 }
 
+function extractDropReasons(stats, enrichmentWorkflow) {
+  const candidates = [
+    stats && stats.drop_reasons_today,
+    stats && stats.enrollment_drops_today,
+    stats && stats.drop_reasons,
+    enrichmentWorkflow && enrichmentWorkflow.drop_reasons_today,
+    enrichmentWorkflow && enrichmentWorkflow.drop_reasons
+  ];
+  for (const src of candidates) {
+    if (!src) continue;
+    if (Array.isArray(src) && src.length) {
+      return src
+        .map(r => ({ reason: String(r.reason || r.label || r.name || 'Unknown'), count: Number(r.count || r.value || 0) }))
+        .filter(r => r.count > 0)
+        .sort((a, b) => b.count - a.count);
+    }
+    if (typeof src === 'object') {
+      const entries = Object.entries(src)
+        .map(([reason, count]) => ({ reason, count: Number(count) || 0 }))
+        .filter(r => r.count > 0)
+        .sort((a, b) => b.count - a.count);
+      if (entries.length) return entries;
+    }
+  }
+  return null;
+}
+
 function renderToday(stats, outcomes) {
   const todayStart = new Date(); todayStart.setHours(0,0,0,0);
   const todayIso = todayStart.toISOString().slice(0, 10);
   let qualifiedReleases = 0;
   let sourceLabel = 'enrichment engine';
+  let enrichmentWorkflow = null;
   if (stats && Array.isArray(stats.workflows) && stats.workflows.length) {
-    const enrichment = stats.workflows.find(w => /enrich/i.test(w.workflow || '')) || stats.workflows[0];
-    sourceLabel = enrichment.workflow || sourceLabel;
-    const dayEntry = (enrichment.runs_by_day || []).find(d => d.date === todayIso);
+    enrichmentWorkflow = stats.workflows.find(w => /enrich/i.test(w.workflow || '')) || stats.workflows[0];
+    sourceLabel = enrichmentWorkflow.workflow || sourceLabel;
+    const dayEntry = (enrichmentWorkflow.runs_by_day || []).find(d => d.date === todayIso);
     qualifiedReleases = dayEntry ? (dayEntry.success || 0) : 0;
   }
   const enrollments = outcomes.todayEnrollments || 0;
+  const gap = Math.max(0, qualifiedReleases - enrollments);
   const todayLabel = todayStart.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  let gapHtml = '';
+  if (qualifiedReleases > 0 && gap > 0) {
+    const reasons = extractDropReasons(stats, enrichmentWorkflow);
+    let reasonedTotal = 0;
+    let body;
+    if (reasons && reasons.length) {
+      reasonedTotal = reasons.reduce((a, r) => a + r.count, 0);
+      const rows = reasons.map(r => `<li><span class="reason">${escapeHtml(r.reason)}</span><span class="reason-count">${fmtNum(r.count)}</span></li>`).join('');
+      const unaccounted = gap - reasonedTotal;
+      const residual = unaccounted > 0
+        ? `<li class="residual"><span class="reason">Other / unattributed</span><span class="reason-count">${fmtNum(unaccounted)}</span></li>`
+        : '';
+      body = `<ul class="gap-reasons">${rows}${residual}</ul>`;
+    } else {
+      body = `<div class="gap-note">Drop reasons aren't reported yet. To populate this list, have the enrichment workflow emit a <code>drop_reasons_today</code> array of <code>{ reason, count }</code> alongside <code>runs_by_day</code>.</div>`;
+    }
+    gapHtml = `
+      <details class="today-gap">
+        <summary>
+          <span class="tier-chevron"></span>
+          <span class="gap-label">Gap</span>
+          <span class="gap-value">${fmtNum(gap)} qualified ${gap === 1 ? 'contact' : 'contacts'} not enrolled today</span>
+        </summary>
+        <div class="gap-body">${body}</div>
+      </details>
+    `;
+  }
+
   document.getElementById('today-grid').innerHTML = `
     <div class="today-stat">
       <div class="v">${fmtNum(qualifiedReleases)}</div>
@@ -442,6 +500,7 @@ function renderToday(stats, outcomes) {
       <div class="hint">HubSpot sequence ${SEQUENCE_ID}</div>
     </div>
   `;
+  document.getElementById('today-gap-slot').innerHTML = gapHtml;
   document.getElementById('today-footnote').textContent = `Snapshot for ${todayLabel}.`;
 }
 

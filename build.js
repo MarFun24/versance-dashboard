@@ -28,7 +28,6 @@ async function fetchContacts() {
         'email','firstname','lastname','company',
         'hs_latest_sequence_enrolled_date','hs_latest_sequence_ended_date','hs_sequences_is_enrolled',
         'hs_sales_email_last_opened','hs_sales_email_last_clicked','hs_sales_email_last_replied',
-        'hs_email_open','hs_email_click','hs_email_reply',
         'num_associated_deals','hubspot_owner_id'
       ],
       limit: 100,
@@ -74,9 +73,6 @@ function slimContacts(contacts) {
       hs_sales_email_last_opened: c.properties.hs_sales_email_last_opened || null,
       hs_sales_email_last_clicked: c.properties.hs_sales_email_last_clicked || null,
       hs_sales_email_last_replied: c.properties.hs_sales_email_last_replied || null,
-      hs_email_open: c.properties.hs_email_open || '0',
-      hs_email_click: c.properties.hs_email_click || '0',
-      hs_email_reply: c.properties.hs_email_reply || '0',
       num_associated_deals: c.properties.num_associated_deals || '0',
       hubspot_owner_id: c.properties.hubspot_owner_id || ''
     }
