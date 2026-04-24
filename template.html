@@ -8,21 +8,25 @@
 <style>
 :root {
   color-scheme: light;
-  --bg: #fafaf7;
+  --bg: #f7f5ef;
   --panel: #ffffff;
-  --ink: #1a1a1a;
-  --ink-mute: #5a5a5a;
+  --ink: #161616;
+  --ink-mute: #585858;
   --ink-faint: #8a8a8a;
-  --line: #e8e6df;
+  --line: #e6e4dc;
+  --line-soft: #efede5;
   --accent: #b8543d;
+  --accent-soft: #f3e0db;
   --good: #2d7a4d;
   --bad: #b8543d;
   --warn: #b88a3d;
   --info: #3d6db8;
+  --hot: #c73a3a;
   --tier-replied: #b8543d;
   --tier-clicked: #b88a3d;
   --tier-opened: #2d7a4d;
-  --shadow: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 1px 2px rgba(20,20,15,0.04), 0 1px 1px rgba(20,20,15,0.02);
+  --shadow-lift: 0 2px 6px rgba(20,20,15,0.06), 0 1px 2px rgba(20,20,15,0.04);
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body {
@@ -33,22 +37,52 @@ body {
   line-height: 1.45;
   padding: 24px 16px;
 }
-.container { max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
-header { display: flex; align-items: baseline; justify-content: space-between; padding-bottom: 4px; flex-wrap: wrap; gap: 8px; }
-.title { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.container { max-width: 820px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+header { display: flex; align-items: baseline; justify-content: space-between; padding: 4px 2px 6px; flex-wrap: wrap; gap: 8px; }
+.title { font-size: 22px; font-weight: 600; letter-spacing: -0.015em; }
 .subtitle { font-size: 12px; color: var(--ink-faint); }
-.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 16px; box-shadow: var(--shadow); }
-.panel-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; gap: 12px; }
-.panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-mute); }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 18px; box-shadow: var(--shadow); transition: box-shadow 0.18s ease; }
+.panel:hover { box-shadow: var(--shadow-lift); }
+.panel-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 14px; gap: 12px; }
+.panel-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.panel-title { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); }
 .panel-source { font-size: 11px; color: var(--ink-faint); font-style: italic; text-align: right; }
-.hero { background: var(--ink); color: #f4f1ea; padding: 20px 18px; border-radius: 8px; }
-.hero .lead { font-size: 13px; opacity: 0.7; margin-bottom: 10px; letter-spacing: 0.04em; text-transform: uppercase; }
+.hero { background: linear-gradient(180deg, #1f1f1c 0%, #151513 100%); color: #f4f1ea; padding: 22px 20px; border-radius: 10px; border: 1px solid #1f1f1c; }
+.hero .lead { font-size: 13px; opacity: 0.65; margin-bottom: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
 .hero-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
 .hero-stat { display: flex; flex-direction: column; gap: 2px; }
-.hero-stat .v { font-size: 32px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
-.hero-stat .v .pct { font-size: 14px; font-weight: 500; opacity: 0.65; margin-left: 6px; letter-spacing: 0; }
-.hero-stat .l { font-size: 11px; opacity: 0.65; }
-.hero .takeaway { margin-top: 14px; font-size: 13px; opacity: 0.85; line-height: 1.4; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.12); }
+.hero-stat .v { font-size: 34px; font-weight: 600; letter-spacing: -0.02em; line-height: 1; }
+.hero-stat .v .pct { font-size: 14px; font-weight: 500; opacity: 0.6; margin-left: 6px; letter-spacing: 0; }
+.hero-stat .l { font-size: 11px; opacity: 0.65; letter-spacing: 0.02em; }
+.hero .takeaway { margin-top: 16px; font-size: 13px; opacity: 0.85; line-height: 1.5; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.1); }
+
+.today-panel { padding: 20px; background: linear-gradient(180deg, #ffffff 0%, #fbf9f2 100%); border: 1px solid var(--line); }
+.today-panel .lead { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 14px; }
+.today-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.today-stat { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; background: #fafaf4; border: 1px solid var(--line-soft); border-radius: 8px; transition: transform 0.15s ease, border-color 0.15s ease; }
+.today-stat:hover { border-color: var(--line); transform: translateY(-1px); }
+.today-stat .v { font-size: 30px; font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; color: var(--ink); font-variant-numeric: tabular-nums; }
+.today-stat .l { font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--ink-mute); }
+.today-stat .hint { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+.today-footnote { font-size: 11px; color: var(--ink-faint); margin-top: 12px; font-style: italic; }
+.today-gap { margin-top: 14px; border: 1px solid var(--line-soft); border-radius: 8px; background: #fafaf4; overflow: hidden; }
+.today-gap[open] { background: #fbfaf3; border-color: var(--line); }
+.today-gap > summary { display: flex; align-items: center; gap: 10px; padding: 10px 14px; cursor: pointer; user-select: none; list-style: none; outline: none; }
+.today-gap > summary::-webkit-details-marker { display: none; }
+.today-gap > summary:hover { background: rgba(0,0,0,0.02); }
+.today-gap .gap-label { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--accent); padding: 2px 8px; border-radius: 999px; background: var(--accent-soft); }
+.today-gap .gap-value { font-size: 13px; color: var(--ink); font-variant-numeric: tabular-nums; }
+.today-gap .gap-body { padding: 4px 14px 14px 30px; }
+.today-gap .gap-reasons { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.today-gap .gap-reasons li { display: flex; justify-content: space-between; gap: 12px; padding: 6px 10px; border-radius: 4px; font-size: 12px; color: var(--ink); }
+.today-gap .gap-reasons li:nth-child(odd) { background: rgba(255,255,255,0.6); }
+.today-gap .gap-reasons li.residual { color: var(--ink-mute); font-style: italic; }
+.today-gap .gap-reasons .reason-count { font-variant-numeric: tabular-nums; color: var(--ink-mute); font-weight: 600; }
+.today-gap .gap-note { font-size: 12px; color: var(--ink-mute); line-height: 1.5; }
+.today-gap .gap-note code { font-size: 11px; background: rgba(0,0,0,0.05); padding: 1px 5px; border-radius: 3px; }
+
+.hot-badge { display: inline-flex; align-items: center; gap: 6px; background: #fdeaea; color: var(--hot); font-size: 11px; font-weight: 600; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 999px; border: 1px solid #f5c7c7; }
+.hot-badge::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
 
 .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 14px; }
 .kpi { display: flex; flex-direction: column; gap: 2px; }
@@ -74,7 +108,8 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
   transition: transform 0.15s;
   margin-left: -2px; flex-shrink: 0;
 }
-.tier-section[open] > summary .tier-chevron { transform: rotate(45deg); margin-top: -3px; }
+.tier-section[open] > summary .tier-chevron,
+.today-gap[open] > summary .tier-chevron { transform: rotate(45deg); margin-top: -3px; }
 .tier-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 .tier-dot.replied { background: var(--tier-replied); }
 .tier-dot.clicked { background: var(--tier-clicked); }
@@ -83,17 +118,15 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .tier-count { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .tier-empty { font-size: 12px; color: var(--ink-faint); padding: 4px 12px 10px 30px; font-style: italic; }
 .contact-list { display: flex; flex-direction: column; padding: 4px 6px 8px; }
-.contact { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 12px; padding: 8px 12px; border-radius: 4px; text-decoration: none; color: inherit; transition: background 0.1s; }
-.contact:hover { background: rgba(0,0,0,0.04); }
+.contact { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: inherit; transition: background 0.12s ease; }
+.contact:hover { background: rgba(0,0,0,0.035); }
+.contact.hot { box-shadow: inset 2px 0 0 var(--hot); }
 .contact-main { min-width: 0; overflow: hidden; }
 .contact-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.contact-name .hot-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); margin-right: 8px; vertical-align: middle; box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
 .contact-co { font-size: 12px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact-when { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; }
 
-.wf-card { padding: 14px 0; border-top: 1px solid var(--line); }
-.wf-card:first-child { border-top: none; padding-top: 0; }
-.wf-card:last-child { padding-bottom: 0; }
-.wf-name { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
 .wf-stats { display: flex; gap: 10px; font-size: 12px; color: var(--ink-mute); margin-bottom: 12px; flex-wrap: wrap; align-items: center; }
 .wf-stats span { font-variant-numeric: tabular-nums; }
 .wf-stats .pill { background: #f0ede5; padding: 2px 7px; border-radius: 3px; color: var(--ink); }
@@ -101,6 +134,12 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .wf-stats .pill-warn { background: #fdf2dc; color: #8a6510; }
 .wf-stats .pill-bad { background: #f3e0db; color: var(--bad); }
 .wf-stats .median { color: var(--ink-faint); margin-left: auto; }
+.wf-summary-stats { display: flex; gap: 6px; font-size: 11px; flex-wrap: wrap; align-items: center; font-variant-numeric: tabular-nums; }
+.wf-summary-stats .pill { background: #f0ede5; padding: 2px 7px; border-radius: 3px; color: var(--ink); }
+.wf-summary-stats .pill-good { background: #e1efe5; color: var(--good); }
+.wf-summary-stats .pill-warn { background: #fdf2dc; color: #8a6510; }
+.wf-summary-stats .pill-bad { background: #f3e0db; color: var(--bad); }
+.wf-details { padding: 4px 12px 12px 30px; }
 
 .day-rows { display: flex; flex-direction: column; gap: 4px; }
 .day-row { display: grid; grid-template-columns: 56px 1fr 110px; gap: 10px; align-items: center; font-size: 12px; }
@@ -129,9 +168,35 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 .subkpi { display: flex; flex-direction: column; gap: 1px; }
 .subkpi .v { font-size: 16px; font-weight: 600; }
 .subkpi .l { font-size: 11px; color: var(--ink-mute); }
+
+.gate-overlay { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 24px; }
+.gate-card { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; box-shadow: var(--shadow); padding: 28px 24px; max-width: 360px; width: 100%; display: flex; flex-direction: column; gap: 14px; }
+.gate-title { font-size: 18px; font-weight: 600; letter-spacing: -0.01em; }
+.gate-subtitle { font-size: 12px; color: var(--ink-faint); }
+.gate-form { display: flex; flex-direction: column; gap: 10px; }
+.gate-input { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); outline: none; }
+.gate-input:focus { border-color: var(--ink-mute); }
+.gate-button { font: inherit; font-weight: 600; padding: 10px 12px; border: none; border-radius: 6px; background: var(--ink); color: #f4f1ea; cursor: pointer; }
+.gate-button:hover { opacity: 0.9; }
+.gate-error { font-size: 12px; color: var(--bad); min-height: 16px; }
+.gate-hidden { display: none !important; }
 </style>
 </head>
 <body>
+
+<div class="gate-overlay" id="gate-overlay">
+  <div class="gate-card">
+    <div>
+      <div class="gate-title">Versance Reporting</div>
+      <div class="gate-subtitle">Enter the password to view the dashboard.</div>
+    </div>
+    <form class="gate-form" id="gate-form">
+      <input class="gate-input" id="gate-input" type="password" placeholder="Password" autocomplete="current-password" autofocus>
+      <div class="gate-error" id="gate-error"></div>
+      <button class="gate-button" type="submit">Unlock</button>
+    </form>
+  </div>
+</div>
 
 <script id="versance-data" type="application/json">
 {
@@ -144,7 +209,7 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 }
 </script>
 
-<div class="container">
+<div class="container gate-hidden" id="main-container">
 
 <header>
   <div>
@@ -162,10 +227,20 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 
 <section class="panel" id="outcomes-panel">
   <div class="panel-header">
-    <div class="panel-title">Engaged Contacts</div>
+    <div class="panel-title-row">
+      <div class="panel-title">Engaged Contacts</div>
+      <div class="hot-badge gate-hidden" id="hot-badge"></div>
+    </div>
     <div class="panel-source" id="outcomes-source">HubSpot · sequence 303463253 · since Apr 20</div>
   </div>
   <div id="outcomes-body"></div>
+</section>
+
+<section class="panel today-panel" id="today-panel">
+  <div class="lead">Today's Activity</div>
+  <div class="today-grid" id="today-grid"></div>
+  <div id="today-gap-slot"></div>
+  <div class="today-footnote" id="today-footnote"></div>
 </section>
 
 <section class="panel" id="throughput-panel">
@@ -226,18 +301,28 @@ function hubspotUrl(id) { return `https://app.hubspot.com/contacts/${PORTAL_ID}/
 
 function aggregateOutcomes(contacts) {
   const total = contacts.length;
-  let active = 0, ended = 0, deals = 0;
+  let active = 0, ended = 0;
   let openedCount = 0, clickedCount = 0, repliedCount = 0;
+  let hotCount = 0;
+  let todayEnrollments = 0;
   const tierReplied = [], tierClicked = [], tierOpened = [];
   const internalDomains = ['versance.ai','tropoly.io'];
   let real = 0;
+  const now = Date.now();
+  const HOT_WINDOW_MS = 48 * 60 * 60 * 1000;
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayStartMs = todayStart.getTime();
+  const todayEndMs = todayStartMs + 24 * 60 * 60 * 1000;
   for (const c of contacts) {
     const p = c.properties || {};
     const email = (p.email || '').toLowerCase();
     const isInternal = internalDomains.some(d => email.endsWith('@'+d)) || email === 'email_not_unlocked@domain.com';
     if (!isInternal) real++;
     if (p.hs_sequences_is_enrolled === 'true') active++; else ended++;
-    if (parseInt(p.num_associated_deals || '0', 10) > 0) deals++;
+    if (!isInternal && p.hs_latest_sequence_enrolled_date) {
+      const enr = new Date(p.hs_latest_sequence_enrolled_date).getTime();
+      if (enr >= todayStartMs && enr < todayEndMs) todayEnrollments++;
+    }
     if (isInternal) continue;
     const op = p.hs_sales_email_last_opened ? new Date(p.hs_sales_email_last_opened) : null;
     const cl = p.hs_sales_email_last_clicked ? new Date(p.hs_sales_email_last_clicked) : null;
@@ -248,10 +333,14 @@ function aggregateOutcomes(contacts) {
     if (opened) openedCount++;
     if (clicked) clickedCount++;
     if (replied) repliedCount++;
+    const clickedHot = cl && (now - cl.getTime()) <= HOT_WINDOW_MS && cl.getTime() >= CUTOFF_MS;
+    const repliedHot = re && (now - re.getTime()) <= HOT_WINDOW_MS && re.getTime() >= CUTOFF_MS;
+    const isHot = !!(clickedHot || repliedHot);
+    if (isHot) hotCount++;
     const id = c.id;
     const fullName = `${p.firstname || ''} ${p.lastname || ''}`.trim() || (p.email || 'Unknown');
     const company = p.company || '';
-    const base = { id, name: fullName, company };
+    const base = { id, name: fullName, company, hot: isHot };
     if (replied) {
       tierReplied.push({ ...base, when: re.toISOString() });
     } else if (clicked) {
@@ -262,8 +351,9 @@ function aggregateOutcomes(contacts) {
   }
   [tierReplied, tierClicked, tierOpened].forEach(list => list.sort((a,b) => b.when.localeCompare(a.when)));
   return {
-    total, real, active, ended, deals,
+    total, real, active, ended,
     openedCount, clickedCount, repliedCount,
+    hotCount, todayEnrollments,
     replied: tierReplied, clicked: tierClicked, opened: tierOpened
   };
 }
@@ -293,9 +383,9 @@ function renderTier(tier, label, list) {
   if (!list.length) {
     return `<details class="tier-section">${summary}<div class="tier-empty">None since Apr 20.</div></details>`;
   }
-  const rows = list.map(c => `<a class="contact" href="${hubspotUrl(c.id)}" target="_blank" rel="noopener">
+  const rows = list.map(c => `<a class="contact${c.hot ? ' hot' : ''}" href="${hubspotUrl(c.id)}" target="_blank" rel="noopener">
     <div class="contact-main">
-      <div class="contact-name">${escapeHtml(c.name)}</div>
+      <div class="contact-name">${c.hot ? '<span class="hot-dot" title="Clicked or replied in the last 48h"></span>' : ''}${escapeHtml(c.name)}</div>
       <div class="contact-co">${escapeHtml(c.company || '—')}</div>
     </div>
     <div class="contact-when">${fmtShortDate(c.when)}</div>
@@ -304,8 +394,16 @@ function renderTier(tier, label, list) {
 }
 
 function renderOutcomes(o) {
+  const hotBadge = document.getElementById('hot-badge');
+  if (o.hotCount > 0) {
+    hotBadge.textContent = `${o.hotCount} hot ${o.hotCount === 1 ? 'lead' : 'leads'} · 48h`;
+    hotBadge.classList.remove('gate-hidden');
+    hotBadge.title = `${o.hotCount} ${o.hotCount === 1 ? 'contact' : 'contacts'} clicked or replied in the last 48 hours`;
+  } else {
+    hotBadge.classList.add('gate-hidden');
+  }
   const html = `
-    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Click any tier to expand the list.</div>
+    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Contacts with a red dot clicked or replied in the last 48 hours. Click any tier to expand the list.</div>
     ${renderTier('replied', 'Replied', o.replied)}
     ${renderTier('clicked', 'Clicked (no reply yet)', o.clicked)}
     ${renderTier('opened', 'Opened only (no click or reply)', o.opened)}
@@ -313,11 +411,97 @@ function renderOutcomes(o) {
       <div class="subkpi"><div class="v">${o.total}</div><div class="l">Total enrolled</div></div>
       <div class="subkpi"><div class="v">${o.active}</div><div class="l">Currently active</div></div>
       <div class="subkpi"><div class="v">${o.ended}</div><div class="l">Sequence ended</div></div>
-      <div class="subkpi"><div class="v">${o.deals}</div><div class="l">Deals created</div></div>
     </div>
     <div class="note">Funnel %s in the hero are computed against ${o.real} real enrollments (excluding ${o.total - o.real} internal/test contacts). All engagement timestamps are filtered to <code>>= Apr 20, 2026</code> to exclude pre-cutoff activity.</div>
   `;
   document.getElementById('outcomes-body').innerHTML = html;
+}
+
+function extractDropReasons(stats, enrichmentWorkflow) {
+  const candidates = [
+    stats && stats.drop_reasons_today,
+    stats && stats.enrollment_drops_today,
+    stats && stats.drop_reasons,
+    enrichmentWorkflow && enrichmentWorkflow.drop_reasons_today,
+    enrichmentWorkflow && enrichmentWorkflow.drop_reasons
+  ];
+  for (const src of candidates) {
+    if (!src) continue;
+    if (Array.isArray(src) && src.length) {
+      return src
+        .map(r => ({ reason: String(r.reason || r.label || r.name || 'Unknown'), count: Number(r.count || r.value || 0) }))
+        .filter(r => r.count > 0)
+        .sort((a, b) => b.count - a.count);
+    }
+    if (typeof src === 'object') {
+      const entries = Object.entries(src)
+        .map(([reason, count]) => ({ reason, count: Number(count) || 0 }))
+        .filter(r => r.count > 0)
+        .sort((a, b) => b.count - a.count);
+      if (entries.length) return entries;
+    }
+  }
+  return null;
+}
+
+function renderToday(stats, outcomes) {
+  const todayStart = new Date(); todayStart.setHours(0,0,0,0);
+  const todayIso = todayStart.toISOString().slice(0, 10);
+  let qualifiedReleases = 0;
+  let sourceLabel = 'enrichment engine';
+  let enrichmentWorkflow = null;
+  if (stats && Array.isArray(stats.workflows) && stats.workflows.length) {
+    enrichmentWorkflow = stats.workflows.find(w => /enrich/i.test(w.workflow || '')) || stats.workflows[0];
+    sourceLabel = enrichmentWorkflow.workflow || sourceLabel;
+    const dayEntry = (enrichmentWorkflow.runs_by_day || []).find(d => d.date === todayIso);
+    qualifiedReleases = dayEntry ? (dayEntry.success || 0) : 0;
+  }
+  const enrollments = outcomes.todayEnrollments || 0;
+  const gap = Math.max(0, qualifiedReleases - enrollments);
+  const todayLabel = todayStart.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+
+  let gapHtml = '';
+  if (qualifiedReleases > 0 && gap > 0) {
+    const reasons = extractDropReasons(stats, enrichmentWorkflow);
+    let reasonedTotal = 0;
+    let body;
+    if (reasons && reasons.length) {
+      reasonedTotal = reasons.reduce((a, r) => a + r.count, 0);
+      const rows = reasons.map(r => `<li><span class="reason">${escapeHtml(r.reason)}</span><span class="reason-count">${fmtNum(r.count)}</span></li>`).join('');
+      const unaccounted = gap - reasonedTotal;
+      const residual = unaccounted > 0
+        ? `<li class="residual"><span class="reason">Other / unattributed</span><span class="reason-count">${fmtNum(unaccounted)}</span></li>`
+        : '';
+      body = `<ul class="gap-reasons">${rows}${residual}</ul>`;
+    } else {
+      body = `<div class="gap-note">Drop reasons aren't reported yet. To populate this list, have the enrichment workflow emit a <code>drop_reasons_today</code> array of <code>{ reason, count }</code> alongside <code>runs_by_day</code>.</div>`;
+    }
+    gapHtml = `
+      <details class="today-gap">
+        <summary>
+          <span class="tier-chevron"></span>
+          <span class="gap-label">Gap</span>
+          <span class="gap-value">${fmtNum(gap)} qualified ${gap === 1 ? 'contact' : 'contacts'} not enrolled today</span>
+        </summary>
+        <div class="gap-body">${body}</div>
+      </details>
+    `;
+  }
+
+  document.getElementById('today-grid').innerHTML = `
+    <div class="today-stat">
+      <div class="v">${fmtNum(qualifiedReleases)}</div>
+      <div class="l">Today's Qualified Releases</div>
+      <div class="hint">from ${escapeHtml(sourceLabel)}</div>
+    </div>
+    <div class="today-stat">
+      <div class="v">${fmtNum(enrollments)}</div>
+      <div class="l">Today's Enrollments</div>
+      <div class="hint">HubSpot sequence ${SEQUENCE_ID}</div>
+    </div>
+  `;
+  document.getElementById('today-gap-slot').innerHTML = gapHtml;
+  document.getElementById('today-footnote').textContent = `Snapshot for ${todayLabel}.`;
 }
 
 function renderThroughput(stats) {
@@ -330,7 +514,7 @@ function renderThroughput(stats) {
     if (cutoffLabel) document.getElementById('throughput-source').textContent = 'n8n · WF-D · since ' + cutoffLabel;
   }
   const cards = stats.workflows.map(wf => {
-    const days = wf.runs_by_day || [];
+    const days = (wf.runs_by_day || []).slice(-5);
     const maxDay = Math.max(1, ...days.map(d => (d.success || 0) + (d.error || 0)));
     const dayRows = days.map(d => {
       const ok = d.success || 0;
@@ -352,18 +536,22 @@ function renderThroughput(stats) {
       </div>`;
     }).join('');
     const rateClass = wf.success_rate_pct >= 95 ? 'pill-good' : (wf.success_rate_pct >= 80 ? 'pill-warn' : 'pill-bad');
-    return `<div class="wf-card">
-      <div class="wf-name">${wf.workflow}</div>
-      <div class="wf-stats">
+    const summary = `<summary>
+      <span class="tier-chevron"></span>
+      <div class="tier-name">${escapeHtml(wf.workflow)}</div>
+      <div class="wf-summary-stats">
         <span class="pill">${fmtNum(wf.total_runs)} runs</span>
         <span class="pill ${rateClass}">${wf.success_rate_pct}% ok</span>
-        ${wf.error_count > 0 ? `<span class="pill pill-bad">${fmtNum(wf.error_count)} errors</span>` : ''}
-        <span class="median">median ${fmtMs(wf.median_success_duration_ms)}</span>
+        ${wf.error_count > 0 ? `<span class="pill pill-bad">${fmtNum(wf.error_count)} err</span>` : ''}
       </div>
+    </summary>`;
+    const body = `<div class="wf-details">
+      <div class="wf-stats"><span class="median">median ${fmtMs(wf.median_success_duration_ms)}</span></div>
       <div class="day-rows">${dayRows}</div>
     </div>`;
+    return `<details class="tier-section">${summary}${body}</details>`;
   }).join('');
-  document.getElementById('throughput-body').innerHTML = cards;
+  document.getElementById('throughput-body').innerHTML = `<div class="muted" style="margin-bottom:14px;font-size:12px">Showing the last 5 days of runs per workflow. Click any workflow to expand the daily breakdown.</div>${cards}`;
 }
 
 function renderReliability(stats) {
@@ -395,7 +583,13 @@ function renderReliability(stats) {
   `;
 }
 
-(function init() {
+const GATE_PASSWORD = 'George';
+const GATE_STORAGE_KEY = 'versance-gate-unlocked';
+let dashboardRendered = false;
+
+function renderDashboard() {
+  if (dashboardRendered) return;
+  dashboardRendered = true;
   const ts = new Date(DATA.generatedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
   document.getElementById('generated').textContent = 'Snapshot ' + ts;
 
@@ -403,8 +597,36 @@ function renderReliability(stats) {
   renderHero(outcomes);
   renderOutcomes(outcomes);
 
+  renderToday(DATA.n8nStats, outcomes);
   renderThroughput(DATA.n8nStats);
   renderReliability(DATA.n8nStats);
+}
+
+function unlockDashboard() {
+  document.getElementById('gate-overlay').classList.add('gate-hidden');
+  document.getElementById('main-container').classList.remove('gate-hidden');
+  renderDashboard();
+}
+
+(function initGate() {
+  if (sessionStorage.getItem(GATE_STORAGE_KEY) === '1') {
+    unlockDashboard();
+    return;
+  }
+  const form = document.getElementById('gate-form');
+  const input = document.getElementById('gate-input');
+  const error = document.getElementById('gate-error');
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    if (input.value === GATE_PASSWORD) {
+      sessionStorage.setItem(GATE_STORAGE_KEY, '1');
+      error.textContent = '';
+      unlockDashboard();
+    } else {
+      error.textContent = 'Incorrect password.';
+      input.select();
+    }
+  });
 })();
 </script>
 </body>
