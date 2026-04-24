@@ -118,17 +118,13 @@ header { display: flex; align-items: baseline; justify-content: space-between; p
 .tier-count { font-size: 12px; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 .tier-empty { font-size: 12px; color: var(--ink-faint); padding: 4px 12px 10px 30px; font-style: italic; }
 .contact-list { display: flex; flex-direction: column; padding: 4px 6px 8px; }
-.contact { display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: inherit; transition: background 0.12s ease; }
+.contact { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 14px; padding: 9px 12px; border-radius: 6px; text-decoration: none; color: inherit; transition: background 0.12s ease; }
 .contact:hover { background: rgba(0,0,0,0.035); }
 .contact.hot { box-shadow: inset 2px 0 0 var(--hot); }
 .contact-main { min-width: 0; overflow: hidden; }
 .contact-name { font-size: 13px; font-weight: 500; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .contact-name .hot-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--hot); margin-right: 8px; vertical-align: middle; box-shadow: 0 0 0 3px rgba(199,58,58,0.15); }
 .contact-co { font-size: 12px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.contact-counts { display: flex; gap: 6px; font-size: 11px; color: var(--ink-mute); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.contact-counts .count { display: inline-flex; align-items: center; padding: 1px 7px; border-radius: 999px; background: #f4f2ec; }
-.contact-counts .count.opens { color: var(--tier-opened); background: #e7f1eb; }
-.contact-counts .count.replies { color: var(--tier-replied); background: #f6e4df; }
 .contact-when { font-size: 11px; color: var(--ink-faint); font-variant-numeric: tabular-nums; white-space: nowrap; text-align: right; display: flex; flex-direction: column; gap: 2px; line-height: 1.2; }
 .contact-rel { font-size: 10px; color: var(--ink-faint); opacity: 0.75; }
 .contact.hot .contact-rel { color: var(--hot); opacity: 0.9; font-weight: 500; }
@@ -208,7 +204,6 @@ footer { text-align: center; font-size: 11px; color: var(--ink-faint); padding: 
 {
   "contacts": "__CONTACTS_JSON__",
   "n8nStats": "__N8N_STATS_JSON__",
-  "engagement": "__ENGAGEMENT_JSON__",
   "generatedAt": "__GENERATED_AT__",
   "cutoffIso": "__CUTOFF_ISO__",
   "portalId": "__PORTAL_ID__",
@@ -306,22 +301,7 @@ function fmtCutoff(iso) {
 function escapeHtml(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c])); }
 function hubspotUrl(id) { return `https://app.hubspot.com/contacts/${PORTAL_ID}/record/0-1/${id}`; }
 
-function buildEngagementMap(data) {
-  const map = new Map();
-  const list = data && Array.isArray(data.engagement) ? data.engagement : [];
-  for (const row of list) {
-    if (!row || row.contact_id == null) continue;
-    map.set(String(row.contact_id), {
-      opens: Math.max(0, parseInt(row.opens, 10) || 0),
-      clicks: Math.max(0, parseInt(row.clicks, 10) || 0),
-      replies: Math.max(0, parseInt(row.replies, 10) || 0)
-    });
-  }
-  return map;
-}
-
-function aggregateOutcomes(contacts, engagementMap) {
-  engagementMap = engagementMap || new Map();
+function aggregateOutcomes(contacts) {
   const total = contacts.length;
   let active = 0, ended = 0;
   let openedCount = 0, clickedCount = 0, repliedCount = 0;
@@ -362,8 +342,7 @@ function aggregateOutcomes(contacts, engagementMap) {
     const id = c.id;
     const fullName = `${p.firstname || ''} ${p.lastname || ''}`.trim() || (p.email || 'Unknown');
     const company = p.company || '';
-    const counts = engagementMap.get(String(id)) || { opens: 0, clicks: 0, replies: 0 };
-    const base = { id, name: fullName, company, hot: isHot, opens: counts.opens, replies: counts.replies };
+    const base = { id, name: fullName, company, hot: isHot };
     if (replied) {
       tierReplied.push({ ...base, when: re.toISOString() });
     } else if (clicked) {
@@ -401,13 +380,6 @@ function renderHero(o) {
   document.getElementById('hero-takeaway').textContent = takeaway;
 }
 
-function renderContactCounts(c) {
-  const parts = [];
-  if (c.opens > 0) parts.push(`<span class="count opens" title="Sequence email opens">${c.opens} ${c.opens === 1 ? 'open' : 'opens'}</span>`);
-  if (c.replies > 0) parts.push(`<span class="count replies" title="Sequence email replies">${c.replies} ${c.replies === 1 ? 'reply' : 'replies'}</span>`);
-  return `<div class="contact-counts">${parts.join('')}</div>`;
-}
-
 function renderTier(tier, label, list) {
   const summary = `<summary><span class="tier-chevron"></span><div class="tier-dot ${tier}"></div><div class="tier-name">${label}</div><div class="tier-count">${list.length}</div></summary>`;
   if (!list.length) {
@@ -418,7 +390,6 @@ function renderTier(tier, label, list) {
       <div class="contact-name">${c.hot ? '<span class="hot-dot" title="Clicked or replied in the last 48h"></span>' : ''}${escapeHtml(c.name)}</div>
       <div class="contact-co">${escapeHtml(c.company || '—')}</div>
     </div>
-    ${renderContactCounts(c)}
     <div class="contact-when">${fmtShortDate(c.when)}<span class="contact-rel">${relTime(c.when)}</span></div>
   </a>`).join('');
   return `<details class="tier-section">${summary}<div class="contact-list">${rows}</div></details>`;
@@ -434,7 +405,7 @@ function renderOutcomes(o) {
     hotBadge.classList.add('gate-hidden');
   }
   const html = `
-    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Per-row pills show total sequence opens and replies tracked since this dashboard's event pipeline was enabled. Contacts with a red dot clicked or replied in the last 48 hours. Click any tier to expand the list.</div>
+    <div class="muted" style="margin-bottom:14px;font-size:12px">Each contact appears once below at their highest action — the funnel counts above (Opened ⊇ Clicked ⊇ Replied) include all engaged contacts in each tier. Contacts with a red dot clicked or replied in the last 48 hours. Each row shows the date of their most recent qualifying action and how long ago it was. Click any tier to expand the list.</div>
     ${renderTier('replied', 'Replied', o.replied)}
     ${renderTier('clicked', 'Clicked (no reply yet)', o.clicked)}
     ${renderTier('opened', 'Opened only (no click or reply)', o.opened)}
@@ -624,8 +595,7 @@ function renderDashboard() {
   const ts = new Date(DATA.generatedAt).toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' });
   document.getElementById('generated').textContent = 'Snapshot ' + ts;
 
-  const engagementMap = buildEngagementMap(DATA);
-  const outcomes = aggregateOutcomes(DATA.contacts || [], engagementMap);
+  const outcomes = aggregateOutcomes(DATA.contacts || []);
   renderHero(outcomes);
   renderOutcomes(outcomes);
 

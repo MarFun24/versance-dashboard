@@ -3,7 +3,6 @@
 // Run by Vercel on each deploy. Triggered daily by GitHub Action via Vercel deploy hook.
 
 import fs from 'fs/promises';
-import { getAllEngagement } from './lib/engagement-store.js';
 
 const HUBSPOT_TOKEN = process.env.HUBSPOT_TOKEN;
 const WFD_WEBHOOK = process.env.WFD_WEBHOOK || 'https://mfunston.app.n8n.cloud/webhook/versance-reporting';
@@ -123,22 +122,12 @@ async function main() {
   const n8nStats = await fetchN8nStats();
   console.log(`  ${n8nStats ? 'Got WF-D stats' : 'WF-D unavailable, panel will show fallback'}`);
 
-  console.log('  Reading engagement counters from Vercel KV');
-  let engagement = [];
-  try {
-    engagement = await getAllEngagement();
-    console.log(`  Got engagement for ${engagement.length} contacts`);
-  } catch (e) {
-    console.warn('  Engagement read failed, continuing without counts:', e.message);
-  }
-
   const template = await fs.readFile('template.html', 'utf-8');
   const generatedAt = new Date().toISOString();
 
   const html = template
     .replace('"__CONTACTS_JSON__"', safeJson(slimContacts(contacts)))
     .replace('"__N8N_STATS_JSON__"', safeJson(n8nStats))
-    .replace('"__ENGAGEMENT_JSON__"', safeJson(engagement))
     .replace('"__GENERATED_AT__"', JSON.stringify(generatedAt))
     .replace('"__CUTOFF_ISO__"', JSON.stringify(CUTOFF_ISO))
     .replace('"__PORTAL_ID__"', JSON.stringify(PORTAL_ID))
